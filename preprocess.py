@@ -2,15 +2,19 @@ import pandas as pd
 import config as cfg
 from os import path
 
+
 def load(category, szn):
+    """Loads the the different categories of files containaing the data
+    'gw' for merged gameweek, 'player' for summary player data"""
     if category == 'gw':
         fpath = path.join('original_data', f'merged_gw_{szn}_{szn+1}.csv')
     elif category == 'player':
         fpath = path.join('original_data', f'players_{szn}_{szn+1}.csv')
     else:
-        fpath = path.join('data', f'blended_gw_{szn}_{szn+1}.csv')
+        raise Exception('No files of the given category')
     df = pd.read_csv(fpath, encoding='latin-1')
     return df
+
 
 def add_posn():
     """Adds the position of a player to a line in the merged gw files.
@@ -29,19 +33,16 @@ def add_posn():
                 player = player_df.loc[player_df['id'] == id].iloc[0]                   # match the id in the gw file to the id in the player file 
                 pos_coln.append(player.loc['element_type'])                             # add the position of that player to an array
         merged_gw_df['pos'] = pos_coln                                                  # add the filled position column to df
-        fpath = path.join('temp_data', f'merged_pos_{szn}_{szn+1}.csv')
+        fpath = path.join('data', f'merged_pos_{szn}_{szn+1}.csv')
         merged_gw_df.to_csv(fpath)                                                      # save df as .csv
         print(f'Done with season {szn}-{szn+1}')
-
-def blend_data():
-    for szn in range(cfg.start_season, cfg.end_season+1):
-        gw_df = load('gw', szn)
-        player_df = load('player', szn)
 
 
 def main():
     add_posn()
 
-main()
+
+if __name__ == '__main__':
+    main()
 
 
